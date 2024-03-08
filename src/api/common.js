@@ -30,7 +30,7 @@ function axiosRequest(_this,type,url,data,callback) {
       callback(res.data)
     }else {
       _this.$message.error(res.data.msg)
-      if(res.data.code==2001001008){
+      if(res.data.code===2001001008){
         localStorage.clear()
         _this.$router.push({name: "Login"})
       }else {
@@ -38,7 +38,7 @@ function axiosRequest(_this,type,url,data,callback) {
       }
     }
   },(res)=>{
-    _this.$message.error("服务开小差了")
+    _this.$message.error(this.$t('system.message.systemError'))
   })
 }
 

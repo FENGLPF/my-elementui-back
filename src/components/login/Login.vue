@@ -6,12 +6,13 @@
              label-position="left"
              label-width="0px"
              class="demo-ruleForm login-page">
-      <h3 class="title">系统登录</h3>
+      <h3 class="title">{{ $t("login.title") }}</h3>
       <el-form-item prop="username">
         <el-input type="text"
                   v-model="ruleForm2.username"
                   auto-complete="new-password"
-                  placeholder="用户名"
+                  clearable
+                  :placeholder="$t('login.username.label')"
                   @keypress.native.enter="handleSubmit"
         ></el-input>
       </el-form-item>
@@ -19,23 +20,32 @@
         <el-input type="password"
                   v-model="ruleForm2.password"
                   auto-complete="new-password"
-                  placeholder="密码"
+                  clearable
+                  :placeholder="$t('login.password.label')"
                   @keypress.native.enter="handleSubmit"
         ></el-input>
       </el-form-item>
-      <el-checkbox
-        v-model="checked"
-        class="rememberme"
-      >记住密码</el-checkbox>
+      <el-form-item>
+        <el-checkbox style="float: left"
+          v-model="checked"
+          class="rememberme"
+        >{{$t('login.remember')}}</el-checkbox>
+        <el-button type="text" @click="languageVisible = true">{{$t('login.language')}}</el-button>
+      </el-form-item>
       <el-form-item style="width:100%;">
-        <el-button type="primary" style="width:100%;" @click="handleSubmit" :loading="logining">登录</el-button>
+        <el-button type="primary" style="width:100%;" @click="handleSubmit" :loading="logining">{{$t('login.login')}}</el-button>
       </el-form-item>
     </el-form>
+    <el-dialog :title="$t('login.systemLanguage')" :visible.sync="languageVisible" :append-to-body="true" width="40%">
+      <Language v-on:closeLanguage="closeLanguage"/>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import Language from "@/components/common/Language";
 export default {
+  components: {Language},
   data(){
     return {
       logining: false,
@@ -45,17 +55,18 @@ export default {
       },
       rules2: {
         username: [
-          {required: true, message: '请输入账号', trigger: 'blur'},
-          {min:6, max:20,message: '6-20位数字+字母'},
-          {pattern: /^[0-9a-zA-Z]{6,20}$/, message: '6-20位数字+字母'}
+          {required: true, message: this.$t('login.username.required'), trigger: 'blur'},
+          {min:6, max:20,message: this.$t('login.username.pattern')},
+          {pattern: /^[0-9a-zA-Z]{6,20}$/, message: this.$t('login.username.pattern')}
         ],
         password: [
-          {required: true, message: '请输入密码', trigger: 'blur'},
-          {min:6, max:20,message: '6-20位数字+字母'},
-          {pattern: /^[0-9a-zA-Z]{6,20}$/, message: '6-20位数字+字母'}
+          {required: true, message: this.$t('login.password.required'), trigger: 'blur'},
+          {min:6, max:20,message: this.$t('login.password.pattern')},
+          {pattern: /^[0-9a-zA-Z]{6,20}$/, message: this.$t('login.password.pattern')}
         ]
       },
-      checked: false
+      checked: false,
+      languageVisible: false,
     }
   },
   created() {
@@ -72,13 +83,15 @@ export default {
       el_message_box.parentNode.removeChild(el_message_box)
       v_modal.parentNode.removeChild(v_modal)
     }
-
   },
   methods: {
+    closeLanguage() {
+      this.languageVisible = false
+      location.reload()
+    },
     handleSubmit(event){
       let _this = this;
-
-      _this.$router.push({path: '/Home'});
+      // _this.$router.push({path: '/Home'});
       return
 
       _this.$refs.ruleForm2.validate((valid) => {
@@ -101,13 +114,13 @@ export default {
               localStorage.setItem('menu', JSON.stringify(res.data.data.menu));
               _this.$router.push({path: '/Home'});
             }else {
-                _this.$alert(res.data.msg, '登录失败', {
+                _this.$alert(res.data.msg, _this.$t('login.login_failed'), {
                   confirmButtonText: 'ok'
                 })
             }
           },(res)=>{
             _this.logining = false;
-            _this.$message.error("服务开小差了")
+            _this.$message.error(_this.$t('system.message.systemError'))
             return false
           })
         }else{
@@ -141,5 +154,8 @@ export default {
 label.el-checkbox.rememberme {
   margin: 0px 0px 15px;
   text-align: left;
+}
+/deep/ .el-input__validateIcon {
+  display: none;
 }
 </style>
